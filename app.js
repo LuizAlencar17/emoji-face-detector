@@ -241,32 +241,25 @@ function stopCamera(){
 // ====== detection loop ======
 async function loop(){
   if (!running) return;
-  const t0 = performance.now();
 
+  // 1) draw current video frame to canvas
   drawFrame(video);
 
-  // Build pipeline conditionally (landmarks are optional)
-  let detections;
-  if (lmChk.checked) {
-    detections = await faceapi
-      .detectAllFaces(canvas, TFD())
-      .withFaceLandmarks()
-      .withFaceExpressions();
-  } else {
-    detections = await faceapi
-      .detectAllFaces(canvas, TFD())
-      .withFaceExpressions();
-  }
+  // 2) detect (with or without landmarks)
+  const opts = new faceapi.TinyFaceDetectorOptions({
+    inputSize: Number(inpSizeRange.value),
+    scoreThreshold: Number(thrRange.value)
+  });
 
-  // tracking + smoothing
+  const detections = lmChk.checked
+    ? await faceapi.detectAllFaces(canvas, opts).withFaceLandmarks().withFaceExpressions()
+    : await faceapi.detectAllFaces(canvas, opts).withFaceExpressions();
+
+  // 3) tracking + smoothing
   assignTracks(detections);
 
-  // draw overlays
+  // 4) overlays in real time (boxes, landmarks, blur, trails, emoji)
   drawBoxesAndEmojis(detections);
-
-  lastDetections = serializeDetections(detections);
-  const fps = 1000 / (performance.now() - t0);
-  setStatus(`Faces: ${detections.length} • ${fps.toFixed(0)} fps • inputSize ${inpSizeRange.value} thr ${thrRange.value}`);
 
   requestAnimationFrame(loop);
 }

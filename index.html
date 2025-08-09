@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Emoji Face Detector 🤖🙂</title>
+  <link rel="stylesheet" href="styles.css" />
+  <!-- face-api.js (bundled build) -->
+  <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Emoji Face Detector <span class="dim">by face-api.js</span></h1>
+    <div class="controls">
+      <button id="btnCamera">▶ Start Camera</button>
+      <button id="btnStop" disabled>⏹ Stop</button>
+      <label class="badge">Mirror <input id="mirror" type="checkbox" checked></label>
+      <label class="badge">Boxes <input id="showBoxes" type="checkbox"></label>
+      <label class="badge">
+        Emoji size
+        <input id="emojiSize" type="range" min="24" max="200" value="96" />
+      </label>
+      <button id="btnShot" title="Save snapshot">📸 Snapshot</button>
+      <label class="badge file">
+        📁 Image
+        <input id="fileInput" type="file" accept="image/*" />
+      </label>
+    </div>
+  </header>
+
+  <main>
+    <!-- Stage: we draw everything into <canvas>. Video stays hidden. -->
+    <div id="stage">
+      <video id="video" playsinline></video>
+      <canvas id="canvas" width="960" height="540" aria-label="Emoji overlay canvas"></canvas>
+      <div id="loading">Loading models…</div>
+    </div>
+
+    <aside>
+      <h2>Status</h2>
+      <div id="status">Idle</div>
+      <h3>Top expressions</h3>
+      <ul id="exprList"></ul>
+      <details>
+        <summary>Tips</summary>
+        <ul class="dim">
+          <li>Smile 😄, frown 😢, surprise 😮, angry 😠, disgust 🤢, fear 😱, neutral 🙂</li>
+          <li>Use “Mirror” for webcam-style view.</li>
+          <li>You can also test on still images via 📁 Image.</li>
+        </ul>
+      </details>
+    </aside>
+  </main>
+
+  <footer>
+    <span>Runs entirely on-device. No data leaves your browser.</span>
+  </footer>
+</body>
+</html>

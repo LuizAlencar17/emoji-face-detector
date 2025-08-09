@@ -30,7 +30,7 @@ const exprList = document.getElementById('exprList');
 const loading = document.getElementById('loading');
 
 // ====== paths & options ======
-const MODEL_BASE = './models'; // robust on GH Pages
+const MODEL_BASE = 'https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/weights'; // robust on GH Pages
 
 function TFD() {
   return new faceapi.TinyFaceDetectorOptions({
@@ -241,25 +241,32 @@ function stopCamera(){
 // ====== detection loop ======
 async function loop(){
   if (!running) return;
+  const t0 = performance.now();
 
-  // 1) draw current video frame to canvas
   drawFrame(video);
 
-  // 2) detect (with or without landmarks)
-  const opts = new faceapi.TinyFaceDetectorOptions({
-    inputSize: Number(inpSizeRange.value),
-    scoreThreshold: Number(thrRange.value)
-  });
+  // Build pipeline conditionally (landmarks are optional)
+  let detections;
+  if (lmChk.checked) {
+    detections = await faceapi
+      .detectAllFaces(canvas, TFD())
+      .withFaceLandmarks()
+      .withFaceExpressions();
+  } else {
+    detections = await faceapi
+      .detectAllFaces(canvas, TFD())
+      .withFaceExpressions();
+  }
 
-  const detections = lmChk.checked
-    ? await faceapi.detectAllFaces(canvas, opts).withFaceLandmarks().withFaceExpressions()
-    : await faceapi.detectAllFaces(canvas, opts).withFaceExpressions();
-
-  // 3) tracking + smoothing
+  // tracking + smoothing
   assignTracks(detections);
 
-  // 4) overlays in real time (boxes, landmarks, blur, trails, emoji)
+  // draw overlays
   drawBoxesAndEmojis(detections);
+
+  lastDetections = serializeDetections(detections);
+  const fps = 1000 / (performance.now() - t0);
+  setStatus(`Faces: ${detections.length} • ${fps.toFixed(0)} fps • inputSize ${inpSizeRange.value} thr ${thrRange.value}`);
 
   requestAnimationFrame(loop);
 }

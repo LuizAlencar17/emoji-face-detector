@@ -30,7 +30,7 @@ const exprList = document.getElementById('exprList');
 const loading = document.getElementById('loading');
 
 // ====== paths & options ======
-const MODEL_BASE = 'https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/weights'; // robust on GH Pages
+const MODEL_BASE = './models'; // robust on GH Pages
 
 function TFD() {
   return new faceapi.TinyFaceDetectorOptions({
